@@ -79,10 +79,11 @@ class CourtRoomEnvironment:
             case_context=api.generate_case()'''
         
         #case_context= api2.generate_case()
-        case_context = dataset.case_context()
+        #case_context = dataset.case_context()
+        case_context= input('Enter the case: ')
 
 
-        print('\n\nCase generated: ', case_context,'\n')
+        #print('Case generated: ', case_context)
         #print('hello')
         #defence_context="Case Context: " + case_context+ "-- Defence Context: " +defence_context
 
@@ -129,9 +130,12 @@ class CourtRoomEnvironment:
         print('REWARDED') if defence_reward >= 10.0 else print('penalized')'''
 
         print('Prosecutor: ', self.content[argument])
-        prosecutor_reward= dataset.reward_prosecutor(argument)
+        #prosecutor_reward= dataset.reward_prosecutor(argument)
         print('Defence: ', self.loopholes[defence_argument])
-        defence_reward= dataset.reward_defence(defence_argument)
+        #defence_reward= dataset.reward_defence(defence_argument)
+
+        prosecutor_reward = float(input('Give reward for prosecutor: '))
+        defence_reward = float(input('Give reward for defence: '))
             
         #print('yup5')
         if float(prosecutor_reward) >= 10.0 and float(defence_reward) >= 10.0:

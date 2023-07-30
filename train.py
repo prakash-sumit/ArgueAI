@@ -5,7 +5,8 @@ from Defence_final import Agent as defence_agent
 from utils import plot_learning_curve
 import os
 
-from env_final import *
+#from env_final import *
+from env_ArgueAI import *
 
 if __name__ == '__main__':
     #env = gym.make('CartPole-v0')
@@ -23,7 +24,7 @@ if __name__ == '__main__':
     
     try:
         prosecutor.load_models()
-        #defence.load_models()
+        defence.load_models()
     except:
         print('No saved model found. Starting from scratch')
     
@@ -36,7 +37,8 @@ if __name__ == '__main__':
 
     learn_iters = 0
     avg_score = 0
-    n_steps = 0
+    n_steps_prosecutor = 0
+    n_steps_defence = 0
 
     file_path= 'memory/n_episodes.txt'
     if os.path.exists(file_path):
@@ -52,26 +54,50 @@ if __name__ == '__main__':
             observation = env.reset()
             done = False
             score = 0
+            prosecutor_flag= False
+            defence_flag= False
+
             for j in range(300):
-                prosecutor_action, prosecutor_prob, prosecutor_val = prosecutor.choose_action(observation)
-                defence_action, defence_prob, defence_val = defence.choose_action(observation)
+                if not prosecutor_flag:
+                    prosecutor_action, prosecutor_prob, prosecutor_val = prosecutor.choose_action(observation)
+                
+                if not defence_flag:
+                    defence_action, defence_prob, defence_val = defence.choose_action(observation)
                 
                 prosecutor_reward, defence_reward, prosecutor_done, defence_done, done = env.step(prosecutor_action, defence_action)
 
-                n_steps += 1
-                score += prosecutor_reward #+ defence_reward
+                #n_steps += 1
+                #score += prosecutor_reward + defence_reward
 
-                prosecutor.remember(observation, prosecutor_action, prosecutor_prob, prosecutor_val, prosecutor_reward, prosecutor_done)
-                #defence.remember(observation, defence_action, defence_prob, defence_val, defence_reward, defence_done)
-
-                if n_steps % N == 0:
+                if not prosecutor_flag:
+                    n_steps_prosecutor += 1
+                    score += prosecutor_reward
+                    prosecutor.remember(observation, prosecutor_action, prosecutor_prob, prosecutor_val, prosecutor_reward, prosecutor_done)
+                
+                if prosecutor_done:
+                    prosecutor_flag= True
+                
+                if not defence_flag:
+                    n_steps_defence += 1
+                    score += defence_reward
+                    defence.remember(observation, defence_action, defence_prob, defence_val, defence_reward, defence_done)
+                
+                if defence_done:
+                    defence_flag= True
+                
+                if n_steps_prosecutor % N == 0:
                     prosecutor.learn()
                     #defence.learn()
                     learn_iters += 1
+
+                if n_steps_defence % N == 0:
+                    defence.learn()
+                    #defence.learn()
+                    learn_iters += 1
                 
-                if done:
+                if prosecutor_flag and defence_flag:
                     print(score)
-                    with open('score.txt', "a") as file:
+                    with open('score3.txt', "a") as file:
                         file.write(str(score)+'\n')
                     break
 
@@ -83,8 +109,11 @@ if __name__ == '__main__':
 
             #if avg_score >= best_score:
                 #best_score = avg_score
+            prosecutor.learn()
+            defence.learn()
+            
             prosecutor.save_models()
-            #defence.save_models()
+            defence.save_models()
 
             #print('episode', i, 'score %.1f' % score, 'avg score %.1f' % avg_score, 'time_steps', n_steps, 'learning_steps', learn_iters)
             pass

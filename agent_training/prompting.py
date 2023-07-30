@@ -9,7 +9,7 @@ def generate_case():
     #content=["traffic", "crime", "environment", "family", "cybersecurity"]
     #select_content=content[random.randint(0,4)]
     select_content="traffic"
-    prompt="Generate a 1 or 2 line case scenario where a person violates a " + select_content + " rule. \nGive only the case in double quotes and nothing else. Strictly NOT a single word extra. \nGive only one case, NOT multiple."#\nExplore the depth and every aspect of the field and give case"
+    prompt="Generate a 1 or 2 line case scenario where a person violates any of the " + select_content + " rule. \nGive a case after exploring all variety of cases that can be possible, dont just always give one of the most common ones \nGive only the case in double quotes and nothing else. Strictly NOT a single word extra. \nGive only one case, NOT multiple."#\nExplore the depth and every aspect of the field and give case"
 
     url = 'https://api.catto.codes/v1/completions'
     headers = {
@@ -20,16 +20,16 @@ def generate_case():
         'model': 'text-davinci-003',
         'prompt': prompt,
         'temperature': 1,
-        'max_tokens': 100,
-        'top_p': 0.8,
+        'max_tokens': 80,
+        'top_p': 0.5,
         'frequency_penalty': 0.1,
         'presence_penalty': 0.1,
         'stop': None
     }
 
-    response = requests.post(url, headers=headers, json=data)
-
     for t in range(3):
+        response = requests.post(url, headers=headers, json=data)
+
         if response.status_code == 200:
             result = response.json()
             # Process the result

@@ -1,7 +1,7 @@
 import openai
 import random
 
-apikey= "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"
+apikey= "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"
 
 context=""
 
@@ -11,14 +11,14 @@ def generate_case():
     #content=["traffic", "crime", "environment", "family", "cybersecurity"]
     #select_content=content[random.randint(0,4)]
     select_content="traffic"
-    prompt="Generate a simple case related to " + select_content + " of 2 or 3 lines and give only the case in double quotes and nothing else. Not a single word extra. Give only one case not multiple."
+    prompt="Generate a 1 or 2 line case scenario where a person violates any of the " + select_content + " rule. \nGive a case after exploring all variety of cases that can be possible, dont just always give one of the most common ones \nGive only the case in double quotes and nothing else. Strictly NOT a single word extra. \nGive only one case, NOT multiple."#\nExplore the depth and every aspect of the field and give case"
 
     # Set up your OpenAI API credentials
     openai.api_key = apikey
 
     # Define the model and parameters
     model = 'text-davinci-003'
-    max_tokens = 100
+    max_tokens = 80
 
     # Generate a response
     response = openai.Completion.create(
@@ -27,10 +27,10 @@ def generate_case():
         max_tokens=max_tokens,
         n=1,
         stop=None,
-        temperature=0.7,
-        top_p=1.0,
-        frequency_penalty=0.0,
-        presence_penalty=0.0
+        temperature=1,
+        top_p=0.5,
+        frequency_penalty=0.1,
+        presence_penalty=0.1
     )
 
     # Extract the generated reply
@@ -45,7 +45,7 @@ def reward_prosecutor(prompt):
     print('Prosecutor: ', prompt)
     print(' ')
 
-    prompt= "\"" + prompt + "\" \n" + "is this the correct rule that applies to the case " + "\"" + context + "\" \n" + "Answer in one word. 'Yes' or 'no' only. No extra word.\nBe lineant"
+    prompt= "\"" + prompt + "\" \n" + "is the above rule related to the case " + context + "\n" + "Answer in one word. 'Yes' or 'no' only. No extra word."#\nBe precise and accurate upto a decent level"
     # Set up your OpenAI API credentials
     openai.api_key = apikey
 
@@ -60,7 +60,7 @@ def reward_prosecutor(prompt):
         max_tokens=max_tokens,
         n=1,
         stop=None,
-        temperature=0.1,
+        temperature=0.3,
         top_p=0.8,
         frequency_penalty=1.0,
         presence_penalty=1.0
