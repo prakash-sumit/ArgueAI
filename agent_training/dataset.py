@@ -13,6 +13,7 @@ def case_context():
         index += 1
 
         if(index >= 43):
+            #return 0
             index = 0
             '''print('Training completed')
             sys.exit()'''
