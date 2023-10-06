@@ -17,10 +17,10 @@ if __name__ == '__main__':
     alpha = 0.0002
     prosecutor = prosecutor_agent(n_actions=len(env.prosecutor_action_space), batch_size=batch_size, 
                     alpha=alpha, n_epochs=n_epochs, 
-                    input_dims=384) # s-bert embedding size = 384
+                    input_dims=384*3) # s-bert embedding size = 384
     defence = defence_agent(n_actions=len(env.defence_action_space), batch_size=batch_size, 
                     alpha=alpha, n_epochs=n_epochs, 
-                    input_dims=384) # s-bert embedding size = 384
+                    input_dims=384*3) # s-bert embedding size = 384
     
     try:
         prosecutor.load_models()
@@ -64,7 +64,7 @@ if __name__ == '__main__':
                 if not defence_flag:
                     defence_action, defence_prob, defence_val = defence.choose_action(observation)
                 
-                prosecutor_reward, defence_reward, prosecutor_done, defence_done, done = env.step(prosecutor_action, defence_action)
+                observation, prosecutor_reward, defence_reward, prosecutor_done, defence_done, done = env.step(observation[:384],prosecutor_action, defence_action)
 
                 #n_steps += 1
                 #score += prosecutor_reward + defence_reward

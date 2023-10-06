@@ -87,14 +87,13 @@ class CourtRoomEnvironment:
         #defence_context="Case Context: " + case_context+ "-- Defence Context: " +defence_context
 
         case_context=self.Tokenize(case_context)
-        #defence_context=self.Tokenize(defence_context)
-        defence_context= case_context
+        defence_argument = self.Tokenize(random.choice(self.loopholes))
+        prosecutor_argument = self.Tokenize(random.choice(self.content))
+  
 
-        #print(case_context.shape)
-
-        return case_context #, defence_context 
+        return torch.cat((case_context,prosecutor_argument, defence_argument), dim=0) #, defence_context 
     
-    def step(self, argument, defence_argument):
+    def step(self, case ,argument, defence_argument):
         '''print(' ')
         print('Prosecutor: ', self.corpus_rules[argument])
         print('Defence: ', self.corpus_rules[defence_argument])
@@ -142,4 +141,7 @@ class CourtRoomEnvironment:
         prosecutor_done = True if float(prosecutor_reward) >= 10.0 else False
         defence_done = True if float(defence_reward) >=10.0 else False
         
-        return prosecutor_reward, defence_reward, prosecutor_done, defence_done, done
+        defence_argument = self.Tokenize(self.loopholes[defence_argument])
+        prosecutor_argument = self.Tokenize(self.content[argument])
+        observation = torch.cat((case,defence_argument,prosecutor_argument),dim=0)
+        return observation, prosecutor_reward, defence_reward, prosecutor_done, defence_done, done
