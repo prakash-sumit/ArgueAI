@@ -4,9 +4,20 @@ from Prosecutor_final import Agent as prosecutor_agent
 from Defence_final import Agent as defence_agent
 from utils import plot_learning_curve
 import os
+from sentence_transformers import SentenceTransformer
+import corpus_data 
 
 #from env_final import *
 from env_ArgueAI import *
+
+model_sbert = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+def Tokenize(state,model = model_sbert):
+        # Tokenize the prompt with bert
+        sentence= state
+        embeddings = model.encode(sentence)
+        embeddings=torch.tensor(embeddings)
+        embeddings=embeddings.view(1,-1)
+        return embeddings
 
 if __name__ == '__main__':
     #env = gym.make('CartPole-v0')
@@ -20,7 +31,7 @@ if __name__ == '__main__':
                     input_dims=384*3) # s-bert embedding size = 384
     defence = defence_agent(n_actions=len(env.defence_action_space), batch_size=batch_size, 
                     alpha=alpha, n_epochs=n_epochs, 
-                    input_dims=384*3) # s-bert embedding size = 384
+                    input_dims=384*4) # s-bert embedding size = 384
     
     try:
         prosecutor.load_models()
@@ -62,8 +73,8 @@ if __name__ == '__main__':
                     prosecutor_action, prosecutor_prob, prosecutor_val = prosecutor.choose_action(observation)
                 
                 if not defence_flag:
-                    defence_action, defence_prob, defence_val = defence.choose_action(observation)
-                
+                    defence_action, defence_prob, defence_val = defence.choose_action(torch.cat(observation,Tokenize(corpus_data.content_rule_list[prosecutor_action]),dim=0))
+                # conditioning defence on n-1th observation and the argument by prosecutor 
                 observation, prosecutor_reward, defence_reward, prosecutor_done, defence_done, done = env.step(observation[:384],prosecutor_action, defence_action)
 
                 #n_steps += 1
